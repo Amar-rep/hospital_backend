@@ -1,0 +1,19 @@
+{
+  "name": "test_html",
+  "version": "1.0.0",
+  "main": "sign.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "eccrypto": "^1.1.6",
+    "eciesjs": "^0.4.17",
+    "elliptic": "^6.6.1",
+    "ethers": "^6.16.0",
+    "js-sha3": "^0.9.3"
+  }
+}

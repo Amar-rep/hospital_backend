@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMS File Upload Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .field-description {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="file"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .response.show {
+            display: block;
+        }
+
+        .response.success {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+        }
+
+        .response.error {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+        }
+
+        .response h3 {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .response.success h3 {
+            color: #155724;
+        }
+
+        .response.error h3 {
+            color: #721c24;
+        }
+
+        .response pre {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.85rem;
+            color: #333;
+        }
+
+        .optional {
+            color: #999;
+            font-weight: normal;
+            font-size: 0.85rem;
+        }
+
+        .file-info {
+            margin-top: 8px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #666;
+            display: none;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔐 KMS File Upload Test</h1>
+        <p class="subtitle">Test the DocumentController /api/files/upload endpoint</p>
+
+        <form id="uploadForm">
+            <!-- Sender Keccak ID -->
+            <div class="form-group">
+                <label for="sender_keccak">
+                    Sender Keccak ID <span style="color: red;">*</span>
+                </label>
+                <span class="field-description">
+                    📝 The Keccak-256 hash of the sender's public key (identifies the user uploading the file)
+                </span>
+                <input type="text" id="sender_keccak" name="sender_keccak" placeholder="e.g., 0x1234567890abcdef..."
+                    required>
+            </div>
+
+            <!-- Group ID -->
+            <div class="form-group">
+                <label for="group_id">
+                    Group ID <span style="color: red;">*</span>
+                </label>
+                <span class="field-description">
+                    📁 The ID of the group where this file will be stored (must be a valid group you have access to)
+                </span>
+                <input type="text" id="group_id" name="group_id" placeholder="e.g., grp_abc123" required>
+            </div>
+
+            <!-- Group Key (Base64) -->
+            <div class="form-group">
+                <label for="group_key_base64">
+                    Group Key (Base64) <span class="optional">(Optional)</span>
+                </label>
+                <span class="field-description">
+                    🔑 The encrypted group key in Base64 format (if not provided, backend will retrieve it)
+                </span>
+                <input type="text" id="group_key_base64" name="group_key_base64" placeholder="Base64 encoded group key">
+            </div>
+
+            <!-- Nonce -->
+            <div class="form-group">
+                <label for="nonce">
+                    Nonce <span class="optional">(Optional)</span>
+                </label>
+                <span class="field-description">
+                    🎲 Random value for encryption (if not provided, backend will generate one)
+                </span>
+                <input type="text" id="nonce" name="nonce" placeholder="Random nonce value">
+            </div>
+
+            <!-- Signature -->
+            <div class="form-group">
+                <label for="signature">
+                    Signature (Hex) <span style="color: red;">*</span>
+                </label>
+                <span class="field-description">
+                    ✍️ Your signature in hexadecimal format (proves you own the private key for sender_keccak)
+                </span>
+                <input type="text" id="signature" name="signature" placeholder="0x..." required>
+            </div>
+
+            <!-- Metadata -->
+            <div class="form-group">
+                <label for="metadata">
+                    Metadata (JSON) <span class="optional">(Optional)</span>
+                </label>
+                <span class="field-description">
+                    📋 Additional information about the file (e.g., {"description": "Medical report", "date":
+                    "2024-01-01"})
+                </span>
+                <textarea id="metadata" name="metadata" placeholder='{"key": "value"}'></textarea>
+            </div>
+
+            <!-- Filename -->
+            <div class="form-group">
+                <label for="filename">
+                    Filename <span class="optional">(Optional)</span>
+                </label>
+                <span class="field-description">
+                    📄 Original filename (will be auto-filled when you select a file)
+                </span>
+                <input type="text" id="filename" name="filename" placeholder="document.pdf">
+            </div>
+
+            <!-- File Upload -->
+            <div class="form-group">
+                <label for="file">
+                    Select File <span style="color: red;">*</span>
+                </label>
+                <span class="field-description">
+                    📎 The file to upload (will be converted to Base64 automatically)
+                </span>
+                <input type="file" id="file" name="file" required>
+                <div id="fileInfo" class="file-info"></div>
+            </div>
+
+            <button type="submit" id="submitBtn">
+                🚀 Upload File
+            </button>
+        </form>
+
+        <div id="response" class="response">
+            <h3 id="responseTitle"></h3>
+            <pre id="responseContent"></pre>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8081';
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('file');
+        const filenameInput = document.getElementById('filename');
+        const fileInfo = document.getElementById('fileInfo');
+        const responseDiv = document.getElementById('response');
+        const responseTitle = document.getElementById('responseTitle');
+        const responseContent = document.getElementById('responseContent');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Update filename when file is selected
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                filenameInput.value = file.name;
+                fileInfo.textContent = `Selected: ${file.name} (${formatFileSize(file.size)})`;
+                fileInfo.classList.add('show');
+            } else {
+                fileInfo.classList.remove('show');
+            }
+        });
+
+        // Convert hex to base64
+
+
+        // Convert file to base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Show response
+        function showResponse(isSuccess, title, content) {
+            responseDiv.className = 'response show ' + (isSuccess ? 'success' : 'error');
+            responseTitle.textContent = title;
+            responseContent.textContent = content;
+            responseDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Handle form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Uploading...';
+            responseDiv.classList.remove('show');
+
+            try {
+                // Get form values
+                const file = fileInput.files[0];
+                if (!file) {
+                    throw new Error('Please select a file');
+                }
+
+                console.log('📤 Starting file upload:', file.name);
+
+                // Convert file to base64
+                const fileDataBase64 = await fileToBase64(file);
+                console.log('✅ File converted to base64');
+
+                // Convert signature from hex to base64
+                const signatureHex = document.getElementById('signature').value;
+                const signatureBase64 = signatureHex;
+                console.log('✅ Signature converted to base64');
+
+                // Parse metadata if provided
+                let metadata = null;
+                const metadataText = document.getElementById('metadata').value.trim();
+                if (metadataText) {
+                    try {
+                        metadata = JSON.parse(metadataText);
+                    } catch (err) {
+                        throw new Error('Invalid JSON in metadata field');
+                    }
+                }
+
+                // Build request payload
+                const payload = {
+                    sender_keccak: document.getElementById('sender_keccak').value,
+                    group_id: document.getElementById('group_id').value,
+                    signature: signatureBase64,
+                    fileDataBase64: fileDataBase64,
+                    filename: filenameInput.value || file.name
+                };
+
+                // Add optional fields if provided
+                if (document.getElementById('group_key_base64').value) {
+                    payload.group_key_base64 = document.getElementById('group_key_base64').value;
+                }
+                if (document.getElementById('nonce').value) {
+                    payload.nonce = document.getElementById('nonce').value;
+                }
+                if (metadata) {
+                    payload.metadata = metadata;
+                }
+
+                console.log('📦 Request payload prepared:', {
+                    ...payload,
+                    fileDataBase64: `[${fileDataBase64.length} chars]`,
+                    signature: `[${signatureBase64.length} chars]`
+                });
+
+                // Send request
+                const response = await fetch(`${API_BASE_URL}/api/files/upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                console.log('📡 Response status:', response.status);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Upload successful:', data);
+                    showResponse(
+                        true,
+                        '✅ Upload Successful!',
+                        JSON.stringify(data, null, 2)
+                    );
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ Upload failed:', errorText);
+                    showResponse(
+                        false,
+                        `❌ Error ${response.status}`,
+                        errorText
+                    );
+                }
+
+            } catch (error) {
+                console.error('❌ Exception:', error);
+                showResponse(
+                    false,
+                    '❌ Exception',
+                    error.message
+                );
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Upload File';
+            }
+        });
+    </script>
+</body>
+
+</html>

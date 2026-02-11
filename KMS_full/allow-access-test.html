@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMS Allow Access Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .field-description {
+            display: block;
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #f5576c;
+            box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .response.show {
+            display: block;
+        }
+
+        .response.success {
+            background: #d4edda;
+            border: 2px solid #c3e6cb;
+        }
+
+        .response.error {
+            background: #f8d7da;
+            border: 2px solid #f5c6cb;
+        }
+
+        .response h3 {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .response.success h3 {
+            color: #155724;
+        }
+
+        .response.error h3 {
+            color: #721c24;
+        }
+
+        .response pre {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.85rem;
+            color: #333;
+        }
+
+        .optional {
+            color: #999;
+            font-weight: normal;
+            font-size: 0.85rem;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔐 KMS Allow Access Test</h1>
+        <p class="subtitle">Test the DocumentController /api/files/allow-access endpoint</p>
+
+        <div class="info-box">
+            <strong>ℹ️ What does this do?</strong>
+            This endpoint grants access to a group by encrypting the group key with the receiver's public key.
+            After this, the receiver will be able to access files in the specified group.
+        </div>
+
+        <form id="allowAccessForm">
+            <!-- Sender Keccak ID -->
+            <div class="form-group">
+                <label for="sender_keccak">
+                    Sender Keccak ID <span style="color: red;">*</span>
+                </label>
+                <span class="field-description">
+                    📝 The Keccak-256 hash of YOUR public key (you are granting access)
+                </span>
+                <input type="text" id="sender_keccak" name="sender_keccak" placeholder="e.g., 0x1234567890abcdef..."
+                    required>
+            </div>
+
+            <!-- Receiver Keccak ID -->
+            <div class="form-group">
+                <label for="receiver_keccak">
+                    Receiver Keccak ID <span style="color: red;">*</span>
+                </label>
+                <span class="field-description">
+                    👤 The Keccak-256 hash of the RECEIVER's public key (who you're granting access to)
+                </span>
+                <input type="text" id="receiver_keccak" name="receiver_keccak" placeholder="e.g., 0xabcdef1234567890..."
+                    required>
+            </div>
+
+            <!-- Group ID -->
+            <div class="form-group">
+                <label for="groupId">
+                    Group ID <span style="color: red;">*</span>
+                </label>
+                <span class="field-description">
+                    📁 The ID of the group you want to grant access to (you must be the owner or have admin rights)
+                </span>
+                <input type="text" id="groupId" name="groupId" placeholder="e.g., grp_abc123" required>
+            </div>
+
+            <!-- Nonce -->
+            <div class="form-group">
+                <label for="nonce">
+                    Nonce <span class="optional">(Optional)</span>
+                </label>
+                <span class="field-description">
+                    🎲 Random value for the operation (if not provided, backend will generate one)
+                </span>
+                <input type="text" id="nonce" name="nonce" placeholder="Random nonce value">
+            </div>
+
+            <!-- Signature -->
+            <div class="form-group">
+                <label for="signature">
+                    Signature (Base64) <span style="color: red;">*</span>
+                </label>
+                <span class="field-description">
+                    ✍️ Your signature in Base64 format (proves you own the private key for sender_keccak)
+                </span>
+                <input type="text" id="signature" name="signature" placeholder="Base64 signature..." required>
+            </div>
+
+            <button type="submit" id="submitBtn">
+                🔓 Grant Access
+            </button>
+        </form>
+
+        <div id="response" class="response">
+            <h3 id="responseTitle"></h3>
+            <pre id="responseContent"></pre>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8081';
+        const form = document.getElementById('allowAccessForm');
+        const responseDiv = document.getElementById('response');
+        const responseTitle = document.getElementById('responseTitle');
+        const responseContent = document.getElementById('responseContent');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Show response
+        function showResponse(isSuccess, title, content) {
+            responseDiv.className = 'response show ' + (isSuccess ? 'success' : 'error');
+            responseTitle.textContent = title;
+            responseContent.textContent = content;
+            responseDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Handle form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Processing...';
+            responseDiv.classList.remove('show');
+
+            try {
+                console.log('🔓 Starting allow access request...');
+
+                // Build request payload
+                const payload = {
+                    sender_keccak: document.getElementById('sender_keccak').value,
+                    receiver_keccak: document.getElementById('receiver_keccak').value,
+                    groupId: document.getElementById('groupId').value,
+                    signature: document.getElementById('signature').value
+                };
+
+                // Add optional fields if provided
+                if (document.getElementById('nonce').value) {
+                    payload.nonce = document.getElementById('nonce').value;
+                }
+
+                console.log('📦 Request payload prepared:', payload);
+
+                // Send request
+                const response = await fetch(`${API_BASE_URL}/api/files/allow-access`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                console.log('📡 Response status:', response.status);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Access granted successfully:', data);
+
+                    // Format the response nicely
+                    const formattedResponse = {
+                        groupId: data.groupId,
+                        receiverKeccak: data.receiverKeccak,
+                        encryptedGroupKey: data.encryptedGroupKey || data.groupKeyBase64,
+                        message: '✅ Access has been granted successfully!'
+                    };
+
+                    showResponse(
+                        true,
+                        '✅ Access Granted Successfully!',
+                        JSON.stringify(formattedResponse, null, 2)
+                    );
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ Allow access failed:', errorText);
+                    showResponse(
+                        false,
+                        `❌ Error ${response.status}`,
+                        errorText
+                    );
+                }
+
+            } catch (error) {
+                console.error('❌ Exception:', error);
+                showResponse(
+                    false,
+                    '❌ Exception',
+                    error.message
+                );
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🔓 Grant Access';
+            }
+        });
+    </script>
+</body>
+
+</html>
