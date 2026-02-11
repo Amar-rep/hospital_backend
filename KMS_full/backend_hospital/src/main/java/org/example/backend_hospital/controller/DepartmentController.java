@@ -1,8 +1,8 @@
-package main.java.org.example.backend_hospital.controller;
+package org.example.backend_hospital.controller;
 
-import main.java.org.example.backend_hospital.dto.CreateDepartmentDTO;
-import main.java.org.example.backend_hospital.entity.Department;
-import main.java.org.example.backend_hospital.service.DepartmentService;
+import org.example.backend_hospital.dto.CreateDepartmentDTO;
+import org.example.backend_hospital.entity.Department;
+import org.example.backend_hospital.service.DepartmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

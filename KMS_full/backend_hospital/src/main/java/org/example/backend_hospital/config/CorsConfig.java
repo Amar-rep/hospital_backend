@@ -1,4 +1,4 @@
-package main.java.org.example.backend_hospital.config;
+package org.example.backend_hospital.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

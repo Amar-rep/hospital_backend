@@ -1,4 +1,4 @@
-package main.java.org.example.backend_hospital.dto;
+package org.example.backend_hospital.dto;
 
 import lombok.Data;
 

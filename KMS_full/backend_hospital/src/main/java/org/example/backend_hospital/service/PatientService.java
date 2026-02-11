@@ -1,9 +1,9 @@
-package main.java.org.example.backend_hospital.service;
+package org.example.backend_hospital.service;
 
-import main.java.org.example.backend_hospital.dto.RegisterPatientDTO;
-import main.java.org.example.backend_hospital.entity.Patient;
-import main.java.org.example.backend_hospital.exception.ResourceNotFoundException;
-import main.java.org.example.backend_hospital.repository.PatientRepository;
+import org.example.backend_hospital.dto.RegisterPatientDTO;
+import org.example.backend_hospital.entity.Patient;
+import org.example.backend_hospital.exception.ResourceNotFoundException;
+import org.example.backend_hospital.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

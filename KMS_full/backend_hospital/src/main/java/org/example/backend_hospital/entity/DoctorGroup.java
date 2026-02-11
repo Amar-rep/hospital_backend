@@ -9,36 +9,32 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "appointments")
+@Table(name = "doctor_groups")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Appointment {
+public class DoctorGroup {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "patient_id", nullable = false)
-    private Patient patient;
+    @JoinColumn(name = "group_id", referencedColumnName = "group_id", nullable = false)
+    private Group group;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "doctor_id", nullable = false)
+    @JoinColumn(name = "doctor_keccak", referencedColumnName = "doctor_id_keccak", nullable = false)
     private Doctor doctor;
 
-    @Column(name = "appointment_date", nullable = false)
-    private OffsetDateTime appointmentDate;
+    @Column(name = "group_key_base64", nullable = false, columnDefinition = "TEXT")
+    private String groupKeyBase64;
 
-    @ColumnDefault("'SCHEDULED'")
-    @Column(name = "status", length = 20)
-    private String status;
-
-    @Column(name = "notes", columnDefinition = "TEXT")
-    private String notes;
+    @Column(name = "group_key_base64_enc", nullable = false, columnDefinition = "TEXT")
+    private String groupKeyBase64Enc;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", insertable = false, updatable = false)
