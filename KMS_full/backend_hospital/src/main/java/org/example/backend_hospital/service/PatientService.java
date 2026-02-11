@@ -6,7 +6,7 @@ import org.example.backend_hospital.exception.ResourceNotFoundException;
 import org.example.backend_hospital.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.example.backend_hospital.dto.kms.KmsAppUserDTO;
 import java.util.List;
 
 @Service
@@ -14,6 +14,7 @@ import java.util.List;
 public class PatientService {
 
     private final PatientRepository patientRepository;
+    private final KmsClientService kmsClientService;
 
     public Patient registerPatient(RegisterPatientDTO dto) {
         if (patientRepository.findByPatientIdKeccak(dto.getPatientIdKeccak()).isPresent()) {
@@ -21,6 +22,11 @@ public class PatientService {
                     "Patient with keccak ID " + dto.getPatientIdKeccak() + " already exists");
         }
 
+        KmsAppUserDTO kmsUser = kmsClientService.getUserByKeccak(dto.getPatientIdKeccak());
+        if (kmsUser == null) {
+            throw new IllegalArgumentException("User data not found in KMS");
+        }
+        // send the hospital id to kms later
         Patient patient = new Patient();
         patient.setPatientIdKeccak(dto.getPatientIdKeccak());
         patient.setName(dto.getName());
@@ -45,4 +51,5 @@ public class PatientService {
     public List<Patient> getAllPatients() {
         return patientRepository.findAll();
     }
+
 }
