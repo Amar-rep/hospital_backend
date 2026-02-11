@@ -14,7 +14,5 @@ public class KmsAppUserDTO {
     private String userIdKeccak;
     private byte[] publicKey;
     private String name;
-    private String physicalAddress;
-    private String phone;
-    private OffsetDateTime createdAt;
+
 }

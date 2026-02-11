@@ -1,6 +1,7 @@
 package org.example.backend_hospital.service;
 
 import org.example.backend_hospital.dto.RegisterDoctorDTO;
+import org.example.backend_hospital.dto.kms.KmsAppUserDTO;
 import org.example.backend_hospital.entity.Department;
 import org.example.backend_hospital.entity.Doctor;
 import org.example.backend_hospital.exception.ResourceNotFoundException;
@@ -17,12 +18,16 @@ public class DoctorService {
 
     private final DoctorRepository doctorRepository;
     private final DepartmentRepository departmentRepository;
+    private final KmsClientService kmsClientService;
 
     public Doctor registerDoctor(RegisterDoctorDTO dto) {
         if (doctorRepository.findByDoctorIdKeccak(dto.getDoctorIdKeccak()).isPresent()) {
             throw new IllegalArgumentException("Doctor with keccak ID " + dto.getDoctorIdKeccak() + " already exists");
         }
-
+        KmsAppUserDTO kmsUser = kmsClientService.getUserByKeccak(dto.getDoctorIdKeccak());
+        if (kmsUser == null) {
+            throw new IllegalArgumentException("User data not found in KMS");
+        }
         Doctor doctor = new Doctor();
         doctor.setDoctorIdKeccak(dto.getDoctorIdKeccak());
         doctor.setName(dto.getName());

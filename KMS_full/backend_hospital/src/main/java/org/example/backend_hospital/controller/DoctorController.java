@@ -1,6 +1,7 @@
 package org.example.backend_hospital.controller;
 
 import org.example.backend_hospital.dto.RegisterDoctorDTO;
+import org.example.backend_hospital.dto.DoctorDTO;
 import org.example.backend_hospital.entity.Doctor;
 import org.example.backend_hospital.service.DoctorService;
 import lombok.RequiredArgsConstructor;
@@ -17,27 +18,38 @@ public class DoctorController {
     private final DoctorService doctorService;
 
     @PostMapping("/register")
-    public ResponseEntity<Doctor> registerDoctor(@RequestBody RegisterDoctorDTO dto) {
-        return ResponseEntity.ok(doctorService.registerDoctor(dto));
+    public ResponseEntity<DoctorDTO> registerDoctor(@RequestBody RegisterDoctorDTO dto) {
+        Doctor doctor = doctorService.registerDoctor(dto);
+        return ResponseEntity.ok(DoctorDTO.fromEntity(doctor));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Doctor> getDoctorById(@PathVariable Long id) {
-        return ResponseEntity.ok(doctorService.findById(id));
+    public ResponseEntity<DoctorDTO> getDoctorById(@PathVariable Long id) {
+        Doctor doctor = doctorService.findById(id);
+        return ResponseEntity.ok(DoctorDTO.fromEntity(doctor));
     }
 
     @GetMapping("/keccak/{doctorIdKeccak}")
-    public ResponseEntity<Doctor> getDoctorByKeccakId(@PathVariable String doctorIdKeccak) {
-        return ResponseEntity.ok(doctorService.findByKeccakId(doctorIdKeccak));
+    public ResponseEntity<DoctorDTO> getDoctorByKeccakId(@PathVariable String doctorIdKeccak) {
+        Doctor doctor = doctorService.findByKeccakId(doctorIdKeccak);
+        return ResponseEntity.ok(DoctorDTO.fromEntity(doctor));
     }
 
     @GetMapping("/department/{departmentId}")
-    public ResponseEntity<List<Doctor>> getDoctorsByDepartment(@PathVariable Long departmentId) {
-        return ResponseEntity.ok(doctorService.findByDepartment(departmentId));
+    public ResponseEntity<List<DoctorDTO>> getDoctorsByDepartment(@PathVariable Long departmentId) {
+        List<Doctor> doctors = doctorService.findByDepartment(departmentId);
+        List<DoctorDTO> doctorDTOs = doctors.stream()
+                .map(DoctorDTO::fromEntity)
+                .toList();
+        return ResponseEntity.ok(doctorDTOs);
     }
 
     @GetMapping
-    public ResponseEntity<List<Doctor>> getAllDoctors() {
-        return ResponseEntity.ok(doctorService.getAllDoctors());
+    public ResponseEntity<List<DoctorDTO>> getAllDoctors() {
+        List<Doctor> doctors = doctorService.getAllDoctors();
+        List<DoctorDTO> doctorDTOs = doctors.stream()
+                .map(DoctorDTO::fromEntity)
+                .toList();
+        return ResponseEntity.ok(doctorDTOs);
     }
 }

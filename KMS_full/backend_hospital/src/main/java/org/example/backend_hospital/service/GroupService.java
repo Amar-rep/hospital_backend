@@ -1,6 +1,8 @@
 package org.example.backend_hospital.service;
 
 import org.example.backend_hospital.dto.CreateGroupDTO;
+import org.example.backend_hospital.dto.kms.KmsCreateGroupResponseDTO;
+import org.example.backend_hospital.dto.kms.KmsRegisterGroupDTO;
 import org.example.backend_hospital.entity.Group;
 import org.example.backend_hospital.entity.Patient;
 import org.example.backend_hospital.exception.ResourceNotFoundException;
@@ -17,19 +19,22 @@ public class GroupService {
 
     private final GroupRepository groupRepository;
     private final PatientRepository patientRepository;
+    private final KmsClientService kmsClientService;
+    private final KeyService keyService;
 
     public Group createGroup(CreateGroupDTO dto) {
-        if (groupRepository.findByGroupId(dto.getGroupId()).isPresent()) {
-            throw new IllegalArgumentException("Group with ID " + dto.getGroupId() + " already exists");
-        }
 
         Patient user = patientRepository.findByPatientIdKeccak(dto.getUserIdKeccak())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Patient not found with keccak ID: " + dto.getUserIdKeccak()));
 
+        KmsCreateGroupResponseDTO kmsResponse = kmsClientService.createGroup(new KmsRegisterGroupDTO(
+                dto.getName(),
+                dto.getUserIdKeccak()));
+
         Group group = new Group();
-        group.setGroupId(dto.getGroupId());
-        group.setName(dto.getName());
+        group.setGroupId(kmsResponse.getGroupId());
+        group.setName(kmsResponse.getGroupName());
         group.setUser(user);
         return groupRepository.save(group);
     }
