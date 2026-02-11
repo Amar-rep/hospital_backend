@@ -1,9 +1,9 @@
-package org.example.backend_hospital.service;
+package main.java.org.example.backend_hospital.service;
 
-import org.example.backend_hospital.dto.RegisterDoctorDTO;
-import org.example.backend_hospital.entity.Department;
-import org.example.backend_hospital.entity.Doctor;
-import org.example.backend_hospital.exception.ResourceNotFoundException;
+import main.java.org.example.backend_hospital.dto.RegisterDoctorDTO;
+import main.java.org.example.backend_hospital.entity.Department;
+import main.java.org.example.backend_hospital.entity.Doctor;
+import main.java.org.example.backend_hospital.exception.ResourceNotFoundException;
 import org.example.backend_hospital.repository.DepartmentRepository;
 import org.example.backend_hospital.repository.DoctorRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package org.example.backend_hospital.entity;
+package main.java.org.example.backend_hospital.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

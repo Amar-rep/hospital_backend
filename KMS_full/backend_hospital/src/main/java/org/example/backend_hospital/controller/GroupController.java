@@ -1,8 +1,8 @@
-package org.example.backend_hospital.controller;
+package main.java.org.example.backend_hospital.controller;
 
-import org.example.backend_hospital.dto.CreateGroupDTO;
-import org.example.backend_hospital.entity.Group;
-import org.example.backend_hospital.service.GroupService;
+import main.java.org.example.backend_hospital.dto.CreateGroupDTO;
+import main.java.org.example.backend_hospital.entity.Group;
+import main.java.org.example.backend_hospital.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
