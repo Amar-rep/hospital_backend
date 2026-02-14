@@ -20,7 +20,6 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final PatientRepository patientRepository;
     private final KmsClientService kmsClientService;
-    private final KeyService keyService;
 
     public Group createGroup(CreateGroupDTO dto) {
 

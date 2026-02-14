@@ -6,10 +6,10 @@ import org.example.backend_hospital.entity.Patient;
 import org.example.backend_hospital.exception.ResourceNotFoundException;
 import org.example.backend_hospital.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.example.backend_hospital.dto.kms.KmsAppUserDTO;
-import org.example.backend_hospital.entity.Group;
 import java.util.List;
 
 @Service
@@ -18,6 +18,7 @@ public class PatientService {
 
     private final PatientRepository patientRepository;
     private final KmsClientService kmsClientService;
+    @Lazy
     private final GroupService groupService;
 
     @Transactional
