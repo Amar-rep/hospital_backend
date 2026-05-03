@@ -1,0 +1,38 @@
+
+
+services:
+  database:
+    image: bitnami/postgresql:latest
+    container_name: ca-postgres
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRESQL_PASSWORD=password
+      - POSTGRESQL_DATABASE=ca
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgresql_data:/bitnami/postgresql
+
+  springboot:
+    build: ./Central_Backend
+    container_name: ca-springboot
+    depends_on:
+      - database
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/ca
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+
+  frontend:
+    build: ./Central_Frontend/presentationUI
+    container_name: ca-frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - springboot
+
+# THIS PART WAS MISSING:
+volumes:
+  postgresql_data:
